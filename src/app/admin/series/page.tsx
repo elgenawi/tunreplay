@@ -297,6 +297,7 @@ export default function AdminSeriesPage() {
             <table className="w-full text-sm">
               <thead className="bg-muted/50">
                 <tr>
+                  <th className="px-3 py-2 text-left w-14">Preview</th>
                   <th className="px-3 py-2 text-left">ID</th>
                   <th className="px-3 py-2 text-left">Title</th>
                   <th className="px-3 py-2 text-left">Type</th>
@@ -310,6 +311,19 @@ export default function AdminSeriesPage() {
               <tbody>
                 {items.map(item => (
                   <tr key={item.id} className="border-t">
+                    <td className="px-3 py-2">
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt=""
+                          className="w-10 h-14 object-cover rounded border border-border bg-muted"
+                        />
+                      ) : (
+                        <div className="w-10 h-14 rounded border border-dashed border-muted-foreground/30 bg-muted/50 flex items-center justify-center text-[10px] text-muted-foreground">
+                          No img
+                        </div>
+                      )}
+                    </td>
                     <td className="px-3 py-2">{item.id}</td>
                     <td className="px-3 py-2 font-medium max-w-[200px] truncate">{item.title}</td>
                     <td className="px-3 py-2 text-muted-foreground">{item.type_name || "—"}</td>
@@ -329,7 +343,7 @@ export default function AdminSeriesPage() {
                 ))}
                 {items.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-3 py-8 text-center text-muted-foreground">
+                    <td colSpan={9} className="px-3 py-8 text-center text-muted-foreground">
                       No series yet. Click &quot;Add Series&quot; to create one.
                     </td>
                   </tr>
