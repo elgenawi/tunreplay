@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import SeriesCard from "@/components/SeriesCard";
+import HomeAdBanner from "@/components/HomeAdBanner";
 import Script from "next/script";
 import {
   getTypeBySlug,
@@ -94,6 +95,8 @@ export default async function Page({ params, searchParams }: PageProps) {
       <main className="min-h-screen pt-24 pb-12">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold text-white mb-8">{type.name}</h1>
+
+          <HomeAdBanner />
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
             {series.map((s) => (

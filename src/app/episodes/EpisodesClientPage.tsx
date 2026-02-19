@@ -2,6 +2,7 @@
 
 import EpisodesView from './EpisodesView';
 import Banner from '@/components/Banner';
+import HomeAdBanner from '@/components/HomeAdBanner';
 
 interface Episode {
   id: string;
@@ -25,6 +26,7 @@ export default function EpisodesClientPage({ episodes, bannerCode }: Props) {
         <div className="w-full mb-8">
           <Banner code={bannerCode} />
         </div>
+        <HomeAdBanner />
         <EpisodesView episodes={episodes} />
       </div>
     </main>

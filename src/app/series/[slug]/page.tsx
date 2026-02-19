@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getSeriesData, getSeriesEpisodes, getAllEpisodes } from './utils';
 import SeriesView from './SeriesView';
+import HomeAdBanner from '@/components/HomeAdBanner';
 
 export const dynamic = 'force-dynamic';
 
@@ -95,13 +96,16 @@ export default async function SeriesPage({ params, searchParams }: SeriesPagePro
   ]);
 
   return (
-    <SeriesView
-      series={series}
-      episodes={episodesData.episodes}
-      allEpisodes={allEpisodes}
-      totalEpisodes={episodesData.totalEpisodes}
-      totalPages={episodesData.totalPages}
-      currentPage={episodesData.currentPage}
-    />
+    <>
+      <HomeAdBanner />
+      <SeriesView
+        series={series}
+        episodes={episodesData.episodes}
+        allEpisodes={allEpisodes}
+        totalEpisodes={episodesData.totalEpisodes}
+        totalPages={episodesData.totalPages}
+        currentPage={episodesData.currentPage}
+      />
+    </>
   );
 }

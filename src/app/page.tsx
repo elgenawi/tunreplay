@@ -1,4 +1,5 @@
 import Slideshow from "@/components/Slideshow";
+import HomeAdBanner from "@/components/HomeAdBanner";
 import PinnedSeriesGrid from '@/components/PinnedSeriesGrid';
 import LatestEpisodesGrid from '@/components/LatestEpisodesGrid';
 import LatestSeriesGrid from '@/components/LatestSeriesGrid';
@@ -84,6 +85,8 @@ export default async function Home() {
       <div className="min-h-screen">
         <div className="relative">
           <Slideshow series={pinnedSeries} />
+
+          <HomeAdBanner />
 
           <PinnedSeriesGrid series={pinnedSeries} />
 

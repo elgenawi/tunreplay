@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getAssetUrl } from '@/lib/api';
 import { getBannerCode } from '@/lib/api';
 import Banner from '@/components/Banner';
+import HomeAdBanner from '@/components/HomeAdBanner';
 import EpisodeView from './EpisodeView';
 import { generateEpisodeSchema, generateBreadcrumbSchema } from '@/lib/schema';
 import Script from 'next/script';
@@ -230,6 +231,7 @@ export default async function EpisodePage({ params }: { params: { slug: string }
         <div className="w-full pt-16 md:pt-20">
           <Banner code={bannerCode} />
         </div>
+        <HomeAdBanner />
         <EpisodeView episode={episode} allEpisodes={allEpisodes} />
       </div>
     </>

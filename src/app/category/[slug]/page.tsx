@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import SeriesCard from '@/components/SeriesCard';
 import Banner from '@/components/Banner';
+import HomeAdBanner from '@/components/HomeAdBanner';
 import { getBannerCode } from '@/lib/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8055';
@@ -127,7 +128,9 @@ export default async function Page({ params, searchParams }: PageProps) {
         </div>
         
         <h1 className="text-3xl font-bold text-white mb-8">{categoryData.name}</h1>
-        
+
+        <HomeAdBanner />
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
           {categoryData.series?.map((series) => (
             <SeriesCard

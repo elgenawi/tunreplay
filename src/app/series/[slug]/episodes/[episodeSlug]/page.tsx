@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSeriesData, getEpisodeBySlugAndSeriesId, getAllEpisodes } from "../../utils";
 import EpisodeView from "@/app/episodes/[slug]/EpisodeView";
+import HomeAdBanner from "@/components/HomeAdBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -97,10 +98,13 @@ export default async function SeriesEpisodePage({ params }: PageProps) {
   const episodesBasePath = `/series/${rawSeriesSlug}/episodes`;
 
   return (
-    <EpisodeView
-      episode={episodeForView}
-      allEpisodes={allEpisodesForView}
-      episodesBasePath={episodesBasePath}
-    />
+    <>
+      <HomeAdBanner />
+      <EpisodeView
+        episode={episodeForView}
+        allEpisodes={allEpisodesForView}
+        episodesBasePath={episodesBasePath}
+      />
+    </>
   );
 }
