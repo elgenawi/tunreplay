@@ -3,8 +3,12 @@
 import { useState, useEffect, TouchEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { PinnedSeries } from '@/lib/api';
-import { getAssetUrl } from '@/lib/api';
+
+interface PinnedSeries {
+  title: string;
+  image: string | null;
+  slug: string;
+}
 
 interface SlideshowProps {
   series: PinnedSeries[];
@@ -16,58 +20,34 @@ export default function Slideshow({ series }: SlideshowProps) {
   const [touchEnd, setTouchEnd] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Auto-advance slides
   useEffect(() => {
     if (series.length <= 1) return;
-
     const timer = setInterval(() => {
       setIsTransitioning(true);
       setCurrentSlide((current) => (current + 1) % series.length);
     }, 5000);
-
     return () => clearInterval(timer);
   }, [series.length]);
 
-  // Handle transition end
   useEffect(() => {
     if (isTransitioning) {
-      const timer = setTimeout(() => {
-        setIsTransitioning(false);
-      }, 1000); // Match the duration of the opacity transition
-
+      const timer = setTimeout(() => setIsTransitioning(false), 1000);
       return () => clearTimeout(timer);
     }
   }, [isTransitioning]);
 
-  // Handle touch events
-  const handleTouchStart = (e: TouchEvent) => {
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e: TouchEvent) => {
-    setTouchEnd(e.touches[0].clientX);
-  };
+  const handleTouchStart = (e: TouchEvent) => setTouchStart(e.touches[0].clientX);
+  const handleTouchMove = (e: TouchEvent) => setTouchEnd(e.touches[0].clientX);
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-
     const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
-      nextSlide();
-    }
-
-    if (isRightSwipe) {
-      previousSlide();
-    }
-
+    if (distance > 50) nextSlide();
+    if (distance < -50) previousSlide();
     setTouchStart(0);
     setTouchEnd(0);
   };
 
-  // Handle manual navigation
   const goToSlide = (index: number) => {
     setIsTransitioning(true);
     setCurrentSlide(index);
@@ -89,27 +69,28 @@ export default function Slideshow({ series }: SlideshowProps) {
 
   return (
     <div className="container mx-auto px-2 py-20">
-      <div 
+      <div
         className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] rounded-xl overflow-hidden shadow-2xl"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Current Slide */}
         <div className="absolute inset-0">
-          <Image
-            src={getAssetUrl(currentSeries.poster)}
-            alt={currentSeries.title}
-            fill
-            className="object-cover rounded-xl"
-            priority
-            quality={90}
-          />
-          {/* Gradient Overlay */}
+          {currentSeries.image ? (
+            <Image
+              src={currentSeries.image}
+              alt={currentSeries.title}
+              fill
+              className="object-cover rounded-xl"
+              priority
+              quality={90}
+            />
+          ) : (
+            <div className="w-full h-full bg-white/5" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent rounded-xl" />
         </div>
 
-        {/* Content */}
         <div className="relative h-full flex items-end">
           <div className="p-6">
             <h2 className="text-2xl font-bold text-white mb-4 line-clamp-2">
@@ -124,7 +105,6 @@ export default function Slideshow({ series }: SlideshowProps) {
           </div>
         </div>
 
-        {/* Navigation Arrows */}
         {series.length > 1 && (
           <>
             <button
@@ -148,7 +128,6 @@ export default function Slideshow({ series }: SlideshowProps) {
           </>
         )}
 
-        {/* Dots Navigation */}
         {series.length > 1 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
             {series.map((_, index) => (
@@ -168,4 +147,4 @@ export default function Slideshow({ series }: SlideshowProps) {
       </div>
     </div>
   );
-} 
+}

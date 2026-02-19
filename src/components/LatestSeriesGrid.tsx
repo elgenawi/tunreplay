@@ -5,11 +5,13 @@ import SeriesCard from './SeriesCard';
 
 interface Series {
   title: string;
-  story: string;
   slug: string;
-  poster: string;
-  imdb: string | null;
+  image: string | null;
   duration: string | null;
+  source: string | null;
+  year_name: string | null;
+  nation_name: string | null;
+  nation_slug: string | null;
 }
 
 interface LatestSeriesGridProps {
@@ -36,11 +38,13 @@ export default function LatestSeriesGrid({ series }: LatestSeriesGridProps) {
             <SeriesCard
               key={`${item.slug}-${index}`}
               title={item.title}
-              poster={item.poster}
-              story={item.story}
+              image={item.image}
               slug={item.slug}
-              imdb={item.imdb}
               duration={item.duration}
+              source={item.source}
+              year_name={item.year_name}
+              nation_name={item.nation_name}
+              nation_slug={item.nation_slug}
             />
           ))}
         </div>
@@ -51,15 +55,17 @@ export default function LatestSeriesGrid({ series }: LatestSeriesGridProps) {
             <SeriesCard
               key={`${item.slug}-${index}`}
               title={item.title}
-              poster={item.poster}
-              story={item.story}
+              image={item.image}
               slug={item.slug}
-              imdb={item.imdb}
               duration={item.duration}
+              source={item.source}
+              year_name={item.year_name}
+              nation_name={item.nation_name}
+              nation_slug={item.nation_slug}
             />
           ))}
         </div>
       </div>
     </section>
   );
-} 
+}

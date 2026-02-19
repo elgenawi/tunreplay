@@ -18,7 +18,7 @@ export async function GET() {
     LEFT JOIN nations n ON s.nation_id = n.id
     LEFT JOIN years y ON s.year_id = y.id
     LEFT JOIN statuses st ON s.status_id = st.id
-    ORDER BY s.id DESC
+    ORDER BY s.pinned DESC, s.id DESC
   `);
   return NextResponse.json({ data: rows });
 }
@@ -74,6 +74,21 @@ export async function PUT(req: NextRequest) {
     }
   }
 
+  return NextResponse.json({ success: true });
+}
+
+export async function PATCH(req: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+  const body = await req.json();
+  const { id, pinned } = body;
+
+  if (!id || typeof pinned !== "number") {
+    return NextResponse.json({ error: "id and pinned are required" }, { status: 400 });
+  }
+
+  await query("UPDATE series SET pinned = ? WHERE id = ?", [pinned ? 1 : 0, id]);
   return NextResponse.json({ success: true });
 }
 

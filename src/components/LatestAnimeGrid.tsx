@@ -5,11 +5,13 @@ import SeriesCard from './SeriesCard';
 
 interface Series {
   title: string;
-  story: string;
   slug: string;
-  poster: string;
-  imdb: string | null;
+  image: string | null;
   duration: string | null;
+  source: string | null;
+  year_name: string | null;
+  nation_name: string | null;
+  nation_slug: string | null;
 }
 
 interface LatestAnimeGridProps {
@@ -30,36 +32,38 @@ export default function LatestAnimeGrid({ series }: LatestAnimeGridProps) {
           </Link>
         </div>
 
-        {/* Mobile List */}
         <div className="sm:hidden space-y-4">
           {series.map((item, index) => (
             <SeriesCard
               key={`${item.slug}-${index}`}
               title={item.title}
-              poster={item.poster}
-              story={item.story}
+              image={item.image}
               slug={item.slug}
-              imdb={item.imdb}
               duration={item.duration}
+              source={item.source}
+              year_name={item.year_name}
+              nation_name={item.nation_name}
+              nation_slug={item.nation_slug}
             />
           ))}
         </div>
 
-        {/* Tablet and Desktop Grid */}
         <div className="hidden sm:grid grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {series.map((item, index) => (
             <SeriesCard
               key={`${item.slug}-${index}`}
               title={item.title}
-              poster={item.poster}
-              story={item.story}
+              image={item.image}
               slug={item.slug}
-              imdb={item.imdb}
               duration={item.duration}
+              source={item.source}
+              year_name={item.year_name}
+              nation_name={item.nation_name}
+              nation_slug={item.nation_slug}
             />
           ))}
         </div>
       </div>
     </section>
   );
-} 
+}

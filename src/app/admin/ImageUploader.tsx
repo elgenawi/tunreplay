@@ -8,14 +8,17 @@ import { Upload, Link as LinkIcon, X } from "lucide-react";
 interface ImageUploaderProps {
   value: string;
   onChange: (url: string) => void;
+  folder?: string;
 }
 
-export default function ImageUploader({ value, onChange }: ImageUploaderProps) {
+export default function ImageUploader({ value, onChange, folder }: ImageUploaderProps) {
   const [mode, setMode] = useState<"idle" | "file" | "url">("idle");
   const [remoteUrl, setRemoteUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const uploadUrl = folder ? `/api/admin/upload?folder=${folder}` : "/api/admin/upload";
 
   const handleFileUpload = async (file: File) => {
     setUploading(true);
@@ -23,7 +26,7 @@ export default function ImageUploader({ value, onChange }: ImageUploaderProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      const res = await fetch(uploadUrl, { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
       onChange(data.url);
@@ -40,7 +43,7 @@ export default function ImageUploader({ value, onChange }: ImageUploaderProps) {
     setUploading(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/upload", {
+      const res = await fetch(uploadUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: remoteUrl.trim() }),

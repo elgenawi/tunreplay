@@ -3,7 +3,12 @@ import { getSessionUser } from "@/lib/auth";
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL || "";
 const DIRECTUS_API_KEY = process.env.DIRECTUS_API_KEY || "";
-const FOLDER_ID = "d2283b71-d0dd-4771-a2fc-893549acc21c";
+const DEFAULT_FOLDER_ID = "d2283b71-d0dd-4771-a2fc-893549acc21c";
+
+const ALLOWED_FOLDERS: Record<string, string> = {
+  series: "d2283b71-d0dd-4771-a2fc-893549acc21c",
+  episodes: "57c700db-9273-4296-b6b5-03e8c78fddaa",
+};
 
 async function requireAdmin() {
   const user = await getSessionUser();
@@ -18,6 +23,10 @@ export async function POST(req: NextRequest) {
   if (denied) return denied;
 
   try {
+    const { searchParams } = new URL(req.url);
+    const folderKey = searchParams.get("folder");
+    const FOLDER_ID = (folderKey && ALLOWED_FOLDERS[folderKey]) || DEFAULT_FOLDER_ID;
+
     const contentType = req.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) {

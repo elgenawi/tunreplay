@@ -23,6 +23,12 @@ const nextConfig = {
         port: '',
         pathname: '/assets/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cms.tunreplay.com',
+        port: '',
+        pathname: '/assets/**',
+      },
     ],
   },
 

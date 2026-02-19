@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, PlayCircle, Pin, PinOff } from "lucide-react";
+import Link from "next/link";
 import ImageUploader from "../ImageUploader";
 
 interface LookupItem { id: number; name: string }
@@ -27,6 +28,7 @@ interface SeriesItem {
   nation_name: string | null;
   year_name: string | null;
   status_name: string | null;
+  pinned: number;
 }
 
 const emptyForm = {
@@ -156,6 +158,15 @@ export default function AdminSeriesPage() {
     setForm(emptyForm);
     setEditId(null);
     setShowForm(false);
+  };
+
+  const togglePin = async (item: SeriesItem) => {
+    await fetch("/api/admin/series", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: item.id, pinned: item.pinned ? 0 : 1 }),
+    });
+    load();
   };
 
   const toggleGenre = (gid: number) => {
@@ -298,6 +309,7 @@ export default function AdminSeriesPage() {
               <thead className="bg-muted/50">
                 <tr>
                   <th className="px-3 py-2 text-left w-14">Preview</th>
+                  <th className="px-3 py-2 text-center w-10">Pin</th>
                   <th className="px-3 py-2 text-left">ID</th>
                   <th className="px-3 py-2 text-left">Title</th>
                   <th className="px-3 py-2 text-left">Type</th>
@@ -324,6 +336,17 @@ export default function AdminSeriesPage() {
                         </div>
                       )}
                     </td>
+                    <td className="px-3 py-2 text-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-7 w-7 ${item.pinned ? "text-primary" : "text-muted-foreground/40"}`}
+                        onClick={() => togglePin(item)}
+                        title={item.pinned ? "Unpin" : "Pin"}
+                      >
+                        {item.pinned ? <Pin className="h-3.5 w-3.5" /> : <PinOff className="h-3.5 w-3.5" />}
+                      </Button>
+                    </td>
                     <td className="px-3 py-2">{item.id}</td>
                     <td className="px-3 py-2 font-medium max-w-[200px] truncate">{item.title}</td>
                     <td className="px-3 py-2 text-muted-foreground">{item.type_name || "—"}</td>
@@ -332,6 +355,11 @@ export default function AdminSeriesPage() {
                     <td className="px-3 py-2 text-muted-foreground">{item.status_name || "—"}</td>
                     <td className="px-3 py-2 text-muted-foreground">{item.episodes_number ?? "—"}</td>
                     <td className="px-3 py-2 text-right space-x-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" asChild title="Manage Episodes">
+                        <Link href={`/admin/episodes?series_id=${item.id}`}>
+                          <PlayCircle className="h-3.5 w-3.5" />
+                        </Link>
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(item)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
@@ -343,7 +371,7 @@ export default function AdminSeriesPage() {
                 ))}
                 {items.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-3 py-8 text-center text-muted-foreground">
+                    <td colSpan={10} className="px-3 py-8 text-center text-muted-foreground">
                       No series yet. Click &quot;Add Series&quot; to create one.
                     </td>
                   </tr>

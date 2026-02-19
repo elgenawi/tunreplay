@@ -3,17 +3,18 @@
 import SeriesCard from './SeriesCard';
 import { useRef } from 'react';
 
+interface PinnedSeries {
+  title: string;
+  image: string | null;
+  slug: string;
+}
+
 interface PinnedSeriesGridProps {
-  series: Array<{
-    title: string;
-    poster: string;
-    slug: string;
-  }>;
+  series: PinnedSeries[];
 }
 
 export default function PinnedSeriesGrid({ series }: PinnedSeriesGridProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  // Take only the first 6 series
   const limitedSeries = series.slice(0, 6);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -31,23 +32,18 @@ export default function PinnedSeriesGrid({ series }: PinnedSeriesGridProps) {
 
         {/* Mobile Carousel */}
         <div className="md:hidden">
-          <div 
+          <div
             ref={scrollContainerRef}
             className="flex overflow-x-auto gap-4 scrollbar-hide snap-x snap-mandatory scroll-smooth mb-4"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {limitedSeries.map((series, index) => (
-              <div key={`${series.slug}-${index}`} className="flex-none w-[160px] snap-start">
-                <SeriesCard
-                  title={series.title}
-                  poster={series.poster}
-                  slug={series.slug}
-                />
+            {limitedSeries.map((s, index) => (
+              <div key={`${s.slug}-${index}`} className="flex-none w-[160px] snap-start">
+                <SeriesCard title={s.title} image={s.image} slug={s.slug} />
               </div>
             ))}
           </div>
 
-          {/* Navigation Arrows */}
           <div className="flex justify-center gap-4 mt-4">
             <button
               onClick={() => scroll('right')}
@@ -72,16 +68,11 @@ export default function PinnedSeriesGrid({ series }: PinnedSeriesGridProps) {
 
         {/* Desktop Grid */}
         <div className="hidden md:grid grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
-          {limitedSeries.map((series, index) => (
-            <SeriesCard
-              key={`${series.slug}-${index}`}
-              title={series.title}
-              poster={series.poster}
-              slug={series.slug}
-            />
+          {limitedSeries.map((s, index) => (
+            <SeriesCard key={`${s.slug}-${index}`} title={s.title} image={s.image} slug={s.slug} />
           ))}
         </div>
       </div>
     </section>
   );
-} 
+}

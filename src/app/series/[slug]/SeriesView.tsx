@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
-import { getAssetUrl } from '@/lib/api';
 import TrailerModal from '@/components/TrailerModal';
 import EpisodeCard from '@/components/EpisodeCard';
 import type { SeriesData, Episode } from './utils';
@@ -17,25 +16,24 @@ interface SeriesViewProps {
   currentPage: number;
 }
 
-export default function SeriesView({ 
-  series, 
-  episodes, 
+export default function SeriesView({
+  series,
+  episodes,
   allEpisodes,
-  totalEpisodes, 
-  totalPages, 
-  currentPage 
+  totalEpisodes,
+  totalPages,
+  currentPage,
 }: SeriesViewProps) {
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Filter episodes based on search term
   const filteredEpisodes = useMemo(() => {
     if (!searchTerm.trim()) return episodes;
-
     const searchLower = searchTerm.toLowerCase();
-    return allEpisodes.filter(episode => 
-      episode.title.toLowerCase().includes(searchLower) ||
-      episode.number.toString().includes(searchLower)
+    return allEpisodes.filter(
+      (ep) =>
+        ep.title.toLowerCase().includes(searchLower) ||
+        ep.episode_number.toString().includes(searchLower)
     );
   }, [allEpisodes, episodes, searchTerm]);
 
@@ -46,13 +44,19 @@ export default function SeriesView({
           {/* Poster */}
           <div className="md:col-span-1">
             <div className="relative aspect-[2/3] rounded-lg overflow-hidden max-w-[300px] mx-auto">
-              <Image
-                src={getAssetUrl(series.poster)}
-                alt={series.title}
-                fill
-                className="object-cover"
-                priority
-              />
+              {series.image ? (
+                <Image
+                  src={series.image}
+                  alt={series.title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full bg-white/5 flex items-center justify-center text-white/40">
+                  No Image
+                </div>
+              )}
             </div>
           </div>
 
@@ -61,70 +65,74 @@ export default function SeriesView({
             <h1 className="text-2xl md:text-3xl font-bold text-white">{series.title}</h1>
 
             <div className="flex flex-wrap gap-4 text-sm">
-              {series.imdb && (
-                <span className="bg-yellow-500/90 text-black px-3 py-1 rounded-full">
-                  IMDB: {series.imdb}
-                </span>
-              )}
               {series.duration && (
                 <span className="bg-white/10 text-white/90 px-3 py-1 rounded-full">
                   {series.duration}
                 </span>
               )}
-              {series.quality && (
+              {series.source && (
                 <span className="bg-primary/90 text-white px-3 py-1 rounded-full">
-                  {series.quality.name}
+                  {series.source}
+                </span>
+              )}
+              {series.episodes_number && (
+                <span className="bg-white/10 text-white/90 px-3 py-1 rounded-full">
+                  {series.episodes_number} حلقة
+                </span>
+              )}
+              {series.season && (
+                <span className="bg-white/10 text-white/90 px-3 py-1 rounded-full">
+                  الموسم {series.season}
                 </span>
               )}
             </div>
 
-            <p className="text-white/80 leading-relaxed">{series.story}</p>
-
             <div className="space-y-4">
-              {/* Category & Year */}
+              {/* Type, Year, Nation */}
               <div className="flex flex-wrap gap-2 text-sm">
-                {series.category && (
-                  <Link 
-                    href={`/category/${series.category.slug}`}
+                {series.type_name && (
+                  <Link
+                    href={`/type/${series.type_slug}`}
                     className="text-white/60 hover:text-primary transition"
                   >
-                    {series.category.name}
+                    {series.type_name}
                   </Link>
                 )}
-                {series.year && (
+                {series.year_name && (
                   <>
                     <span className="text-white/40">•</span>
-                    <Link 
-                      href={`/year/${series.year.slug}`}
+                    <span className="text-white/60">{series.year_name}</span>
+                  </>
+                )}
+                {series.nation_name && (
+                  <>
+                    <span className="text-white/40">•</span>
+                    <Link
+                      href={`/nation/${series.nation_slug}`}
                       className="text-white/60 hover:text-primary transition"
                     >
-                      {series.year.name}
+                      {series.nation_name}
                     </Link>
                   </>
                 )}
-                {series.nation && (
+                {series.status_name && (
                   <>
                     <span className="text-white/40">•</span>
-                    <Link 
-                      href={`/nation/${series.nation.slug}`}
-                      className="text-white/60 hover:text-primary transition"
-                    >
-                      {series.nation.name}
-                    </Link>
+                    <span className="text-white/60">{series.status_name}</span>
                   </>
                 )}
               </div>
 
               {/* Genres */}
-              {series.genres && series.genres.length > 0 && (
+              {series.genres.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {series.genres.map(({ genre_id }) => (
+                  {series.genres.map((genre) => (
                     <Link
-                      key={genre_id.slug}
-                      href={`/genre/${genre_id.slug}`}
+                      key={genre.slug}
+                      href={`/genre/${genre.slug}`}
                       className="bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-sm px-3 py-1 rounded-full transition"
                     >
-                      {genre_id.name}
+                      {genre.name}
                     </Link>
                   ))}
                 </div>
@@ -132,29 +140,14 @@ export default function SeriesView({
             </div>
 
             {/* Trailer Button */}
-            {series.trailer && (
+            {series.trailer_embed_vid && (
               <button
                 onClick={() => setIsTrailerOpen(true)}
                 className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 مشاهدة الإعلان
               </button>
@@ -169,7 +162,6 @@ export default function SeriesView({
               الحلقات ({totalEpisodes})
             </h2>
 
-            {/* Search Input */}
             <div className="relative w-full max-w-md">
               <input
                 type="text"
@@ -184,12 +176,7 @@ export default function SeriesView({
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
           </div>
@@ -201,16 +188,12 @@ export default function SeriesView({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
               {filteredEpisodes.map((episode) => (
-                <EpisodeCard
-                  key={episode.id}
-                  episode={episode}
-                  seriesSlug={series.slug}
-                />
+                <EpisodeCard key={episode.id} episode={episode} seriesSlug={series.slug} />
               ))}
             </div>
           )}
 
-          {/* Show pagination only when not searching */}
+          {/* Pagination */}
           {!searchTerm && totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-8">
               {currentPage > 1 && (
@@ -221,9 +204,8 @@ export default function SeriesView({
                   السابق
                 </Link>
               )}
-              
+
               <div className="flex items-center gap-2">
-                {/* First page */}
                 {currentPage > 2 && (
                   <>
                     <Link
@@ -236,24 +218,22 @@ export default function SeriesView({
                   </>
                 )}
 
-                {/* Current page and neighbors */}
                 {Array.from({ length: 3 }, (_, i) => currentPage - 1 + i)
-                  .filter(page => page > 0 && page <= totalPages)
-                  .map(page => (
+                  .filter((p) => p > 0 && p <= totalPages)
+                  .map((p) => (
                     <Link
-                      key={page}
-                      href={`/series/${series.slug}?page=${page}`}
+                      key={p}
+                      href={`/series/${series.slug}?page=${p}`}
                       className={`px-4 py-2 rounded-lg transition ${
-                        page === currentPage
+                        p === currentPage
                           ? 'bg-primary text-white'
                           : 'bg-white/10 hover:bg-white/20 text-white'
                       }`}
                     >
-                      {page}
+                      {p}
                     </Link>
                   ))}
 
-                {/* Last page */}
                 {currentPage < totalPages - 1 && (
                   <>
                     {currentPage < totalPages - 2 && <span className="text-white/60">...</span>}
@@ -280,12 +260,14 @@ export default function SeriesView({
         </div>
       </div>
 
-      <TrailerModal
-        isOpen={isTrailerOpen}
-        onClose={() => setIsTrailerOpen(false)}
-        trailerUrl={series.trailer}
-        title={series.title}
-      />
+      {series.trailer_embed_vid && (
+        <TrailerModal
+          isOpen={isTrailerOpen}
+          onClose={() => setIsTrailerOpen(false)}
+          trailerUrl={series.trailer_embed_vid}
+          title={series.title}
+        />
+      )}
     </main>
   );
-} 
+}

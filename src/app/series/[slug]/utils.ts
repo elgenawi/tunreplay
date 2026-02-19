@@ -1,159 +1,122 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8055';
+import { query } from "@/lib/db";
 
 export interface Genre {
-  genre_id: {
-    name: string;
-    slug: string;
-  };
+  name: string;
+  slug: string;
+}
+
+export interface Episode {
+  id: number;
+  title: string;
+  slug: string;
+  episode_number: number;
+  image: string | null;
+  season: number;
+  created_at: string;
 }
 
 export interface SeriesData {
-  id: string;
+  id: number;
   title: string;
-  poster: string;
-  story: string;
   slug: string;
-  trailer: string;
-  imdb: string;
-  duration: string;
-  category: {
-    name: string;
-    slug: string;
-  };
-  nation: {
-    name: string;
-    slug: string;
-  };
-  quality: {
-    name: string;
-    slug: string;
-  };
-  year: {
-    name: string;
-    slug: string;
-  };
+  image: string | null;
+  duration: string | null;
+  source: string | null;
+  episodes_number: number | null;
+  season: number | null;
+  trailer_embed_vid: string | null;
+  release_date: string | null;
+  type_name: string | null;
+  type_slug: string | null;
+  nation_name: string | null;
+  nation_slug: string | null;
+  year_name: string | null;
+  status_name: string | null;
+  status_slug: string | null;
   genres: Genre[];
-  episodes: Episode[];
 }
 
 export async function getSeriesData(slug: string): Promise<SeriesData | null> {
   try {
-    const response = await fetch(
-      `${API_URL}/items/series?filter[slug][_eq]=${slug}&fields=id,title,poster,story,slug,trailer,imdb,duration,category.name,category.slug,nation.name,nation.slug,quality.name,quality.slug,year.name,year.slug,genres.genre_id.name,genres.genre_id.slug,episodes`,
-      {
-        next: { revalidate: 60 },
-      }
+    const rows = await query<Record<string, unknown>[]>(
+      `SELECT s.*, t.name as type_name, t.slug as type_slug,
+              n.name as nation_name, n.slug as nation_slug,
+              y.name as year_name,
+              st.name as status_name, st.slug as status_slug
+       FROM series s
+       LEFT JOIN types t ON s.type_id = t.id
+       LEFT JOIN nations n ON s.nation_id = n.id
+       LEFT JOIN years y ON s.year_id = y.id
+       LEFT JOIN statuses st ON s.status_id = st.id
+       WHERE s.slug = ?
+       LIMIT 1`,
+      [slug]
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch series data');
-    }
+    if (!Array.isArray(rows) || rows.length === 0) return null;
 
-    const data = await response.json();
-    return data.data[0] || null;
+    const series = rows[0] as unknown as SeriesData;
+
+    const genreRows = await query<Genre[]>(
+      `SELECT g.name, g.slug FROM series_genres sg
+       JOIN genres g ON sg.genre_id = g.id
+       WHERE sg.series_id = ?`,
+      [series.id]
+    );
+
+    series.genres = Array.isArray(genreRows) ? genreRows : [];
+    return series;
   } catch (error) {
-    console.error('Error fetching series data:', error);
+    console.error("Error fetching series data:", error);
     return null;
   }
 }
 
-interface Episode {
-  id: string;
-  title: string;
-  slug: string;
-  number: string;
-  cover: string;
-  date_created: string;
-}
-
-interface EpisodesResponse {
-  data: {
-    id: string;
-    title: string;
-    slug: string;
-    episodes: Episode[];
-  }[];
-}
-
-export const getSeriesEpisodesData = async (slug: string, page: number = 1) => {
+export async function getSeriesEpisodes(
+  seriesId: number,
+  page: number = 1,
+  limit: number = 40
+) {
   try {
-    // Get all episodes data in one request
-    const episodesResponse = await fetch(
-      `${API_URL}/items/series?filter[slug][_eq]=${slug}&fields=id,title,slug,episodes.id,episodes.title,episodes.slug,episodes.number,episodes.cover,episodes.date_created&deep={"episodes":{"_sort":["date_created"],"_limit":-1}}`,
-      { next: { revalidate: 0 } }
+    const countRows = await query<{ total: number }[]>(
+      "SELECT COUNT(*) as total FROM episodes WHERE series_id = ?",
+      [seriesId]
     );
-    const episodesData: EpisodesResponse = await episodesResponse.json();
-
-    if (!episodesData.data.length) {
-      throw new Error('Series not found');
-    }
-
-    const allEpisodes = episodesData.data[0]?.episodes || [];
-    const totalEpisodes = allEpisodes.length;
-
-    // Sort episodes by number (handling decimal numbers correctly)
-    const sortedEpisodes = [...allEpisodes].sort((a, b) => {
-      const numA = parseFloat(a.number);
-      const numB = parseFloat(b.number);
-      return numA - numB;
-    });
-
-    // Calculate pagination
-    const limit = 40;
+    const totalEpisodes = Array.isArray(countRows) ? countRows[0]?.total ?? 0 : 0;
+    const totalPages = Math.max(1, Math.ceil(totalEpisodes / limit));
     const offset = (page - 1) * limit;
-    const totalPages = Math.ceil(totalEpisodes / limit);
 
-    // Get episodes for current page
-    const paginatedEpisodes = sortedEpisodes.slice(offset, offset + limit);
+    const episodes = await query<Episode[]>(
+      `SELECT id, title, slug, episode_number, image, season, created_at
+       FROM episodes WHERE series_id = ?
+       ORDER BY season, episode_number
+       LIMIT ${Number(limit)} OFFSET ${Number(offset)}`,
+      [seriesId]
+    );
 
     return {
-      episodes: paginatedEpisodes,
+      episodes: Array.isArray(episodes) ? episodes : [],
+      totalEpisodes,
       totalPages,
       currentPage: page,
-      totalEpisodes,
     };
   } catch (error) {
-    console.error('Error fetching episodes data:', error);
-    return {
-      episodes: [],
-      totalPages: 1,
-      currentPage: page,
-      totalEpisodes: 0,
-    };
+    console.error("Error fetching episodes:", error);
+    return { episodes: [], totalEpisodes: 0, totalPages: 1, currentPage: page };
   }
-};
+}
 
-export const getAllEpisodesData = async (slug: string) => {
+export async function getAllEpisodes(seriesId: number) {
   try {
-    // Get all episodes data in one request
-    const episodesResponse = await fetch(
-      `${API_URL}/items/series?filter[slug][_eq]=${slug}&fields=id,title,slug,episodes.id,episodes.title,episodes.slug,episodes.number,episodes.cover,episodes.date_created&deep={"episodes":{"_sort":["date_created"],"_limit":-1}}`,
-      { next: { revalidate: 0 } }
+    const episodes = await query<Episode[]>(
+      `SELECT id, title, slug, episode_number, image, season, created_at
+       FROM episodes WHERE series_id = ?
+       ORDER BY season, episode_number`,
+      [seriesId]
     );
-    const episodesData: EpisodesResponse = await episodesResponse.json();
-
-    if (!episodesData.data.length) {
-      throw new Error('Series not found');
-    }
-
-    const allEpisodes = episodesData.data[0]?.episodes || [];
-
-    // Sort episodes by number (handling decimal numbers correctly)
-    const sortedEpisodes = [...allEpisodes].sort((a, b) => {
-      const numA = parseFloat(a.number);
-      const numB = parseFloat(b.number);
-      return numA - numB;
-    });
-
-    return {
-      episodes: sortedEpisodes,
-    };
+    return Array.isArray(episodes) ? episodes : [];
   } catch (error) {
-    console.error('Error fetching all episodes data:', error);
-    return {
-      episodes: [],
-    };
+    console.error("Error fetching all episodes:", error);
+    return [];
   }
-};
-
-export type { Episode }; 
+}
