@@ -69,27 +69,3 @@ export async function searchSeries(query: string, page: number, limit: number): 
     };
   }
 }
-
-export async function getScheduleByDay(day: string) {
-  try {
-    const response = await fetch(
-      `${API_URL}/items/schedule?filter[day][_eq]=${day}&fields=id,time,day,seies.series_id.id,seies.series_id.title,seies.series_id.poster,seies.series_id.story,seies.series_id.slug,seies.series_id.imdb,seies.series_id.duration,seies.series_id.category.name,seies.series_id.category.slug,seies.series_id.nation.name,seies.series_id.nation.slug,seies.series_id.quality.name,seies.series_id.quality.slug,seies.series_id.year.name,seies.series_id.year.slug&sort=time`,
-      { 
-        cache: 'no-store',
-        headers: {
-          'Accept': 'application/json',
-        },
-      }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.data || [];
-  } catch (error) {
-    console.error('Error fetching schedule:', error);
-    return [];
-  }
-} 

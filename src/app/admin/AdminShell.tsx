@@ -13,6 +13,7 @@ import {
   CheckCircle,
   Layers,
   PlayCircle,
+  Clock,
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,6 +36,7 @@ const mainNav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/series", label: "Series", icon: Film },
   { href: "/admin/episodes", label: "Episodes", icon: PlayCircle },
+  { href: "/admin/schedule", label: "Schedule", icon: Clock },
 ];
 
 const lookupNav = [

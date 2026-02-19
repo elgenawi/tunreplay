@@ -1,21 +1,55 @@
-// @ts-nocheck
-import { getScheduleByDay } from '@/lib/actions';
-import { Metadata } from 'next';
-import ClientSchedule from './ClientSchedule';
+import { getScheduleByDay } from "@/lib/queries";
+import { Metadata } from "next";
+import ClientSchedule from "@/components/ClientSchedule";
 
 export const metadata: Metadata = {
-  // ... metadata config
+  title: "مواعيد الحلقات - TUNREPLAY",
+  description:
+    "مواعيد عرض الحلقات الجديدة من المسلسلات والانمي على موقع TUNREPLAY",
+  keywords: [
+    "مواعيد الحلقات",
+    "مواعيد العرض",
+    "مسلسلات",
+    "انمي",
+    "حلقات جديدة",
+    "TUNREPLAY",
+  ],
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: "مواعيد الحلقات - TUNREPLAY",
+    description:
+      "مواعيد عرض الحلقات الجديدة من المسلسلات والانمي على موقع TUNREPLAY",
+    type: "website",
+    siteName: "TUNREPLAY",
+    locale: "ar_AR",
+  },
+  alternates: { canonical: "/مواعيد-الحلقات" },
 };
 
-export default async function EpisodeSchedulesPage({
-  searchParams,
-}: {
-  searchParams: { day?: string };
-}) {
+type PageProps = {
+  params: Record<string, never>;
+  searchParams: Promise<{ day?: string }>;
+};
+
+export default async function EpisodeSchedulesPage({ searchParams }: PageProps) {
   const today = new Date();
-  const currentDayName = today.toLocaleDateString('en-US', { weekday: 'long' });
-  const { day } = await Promise.resolve(searchParams);
+  const currentDayName = today.toLocaleDateString("en-US", { weekday: "long" });
+  const { day } = await searchParams;
   const dayToFetch = day || currentDayName;
-  
-  // ... rest of the code
-} 
+
+  const scheduleData = await getScheduleByDay(dayToFetch);
+
+  const DAYS_AR: Record<string, string> = {
+    Sunday: "الأحد",
+    Monday: "الإثنين",
+    Tuesday: "الثلاثاء",
+    Wednesday: "الأربعاء",
+    Thursday: "الخميس",
+    Friday: "الجمعة",
+    Saturday: "السبت",
+  };
+
+  return (
+    <ClientSchedule initialSchedule={scheduleData} daysAr={DAYS_AR} />
+  );
+}

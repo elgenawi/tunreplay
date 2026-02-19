@@ -1,6 +1,6 @@
-import { getScheduleByDay } from '@/lib/actions';
-import { Metadata } from 'next';
-import ClientSchedule from './ClientSchedule';
+import { getScheduleByDay } from "@/lib/queries";
+import { Metadata } from "next";
+import ClientSchedule from "@/components/ClientSchedule";
 
 export const metadata: Metadata = {
   title: 'مواعيد الحلقات - TUNREPLAY',
@@ -30,9 +30,8 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  // @ts-expect-error Params should be empty for this page
   params: Record<string, never>;
-  searchParams: { day?: string };
+  searchParams: Promise<{ day?: string }> | { day?: string };
 }
 
 export default async function EpisodeSchedulesPage({
