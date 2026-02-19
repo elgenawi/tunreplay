@@ -35,14 +35,14 @@ export default async function RootLayout({
     <html lang="ar" dir="rtl" className={droidKufi.className} suppressHydrationWarning>
       <head>
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZKC57MBPEZ"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CNNXGHJTNY"></script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-ZKC57MBPEZ');
+              gtag('config', 'G-CNNXGHJTNY');
             `,
           }}
         />
