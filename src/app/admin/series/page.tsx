@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import ImageUploader from "../ImageUploader";
 
 interface LookupItem { id: number; name: string }
 interface SeriesItem {
@@ -197,9 +198,9 @@ export default function AdminSeriesPage() {
                   </label>
                   <Input value={form.slug} onChange={e => set("slug", e.target.value)} placeholder="auto-generated" />
                 </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Image URL</label>
-                  <Input value={form.image} onChange={e => set("image", e.target.value)} placeholder="https://..." />
+                <div className="md:col-span-2">
+                  <label className="text-xs text-muted-foreground mb-1 block">Image</label>
+                  <ImageUploader value={form.image} onChange={(url) => set("image", url)} />
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Duration</label>

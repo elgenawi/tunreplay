@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,34 @@ export default function LookupManager({ table, title, hasSlug = true }: LookupMa
   const [slug, setSlug] = useState("");
   const [editId, setEditId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [slugLoading, setSlugLoading] = useState(false);
+  const slugTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const generateSlug = (value: string) => {
+    if (!hasSlug) return;
+    if (slugTimer.current) clearTimeout(slugTimer.current);
+    slugTimer.current = setTimeout(async () => {
+      if (!value.trim()) {
+        setSlug("");
+        return;
+      }
+      setSlugLoading(true);
+      try {
+        const params = new URLSearchParams({ name: value });
+        if (editId) params.set("excludeId", String(editId));
+        const res = await fetch(`/api/admin/lookup/${table}/check-slug?${params}`);
+        const data = await res.json();
+        setSlug(data.slug ?? "");
+      } finally {
+        setSlugLoading(false);
+      }
+    }, 400);
+  };
+
+  const handleNameChange = (value: string) => {
+    setName(value);
+    generateSlug(value);
+  };
 
   const load = async () => {
     const res = await fetch(`/api/admin/lookup/${table}`);
@@ -83,12 +111,12 @@ export default function LookupManager({ table, title, hasSlug = true }: LookupMa
           <Input
             placeholder="Name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => handleNameChange(e.target.value)}
             className="w-48"
           />
           {hasSlug && (
             <Input
-              placeholder="Slug (auto)"
+              placeholder={slugLoading ? "..." : "Slug (auto)"}
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               className="w-48"
