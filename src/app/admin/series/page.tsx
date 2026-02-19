@@ -24,6 +24,7 @@ interface SeriesItem {
   year_id: number | null;
   status_id: number | null;
   release_date: string | null;
+  description: string | null;
   type_name: string | null;
   nation_name: string | null;
   year_name: string | null;
@@ -35,7 +36,7 @@ const emptyForm = {
   title: "", slug: "", image: "", duration: "", source: "",
   episodes_number: "", season: "", trailer_embed_vid: "",
   type_id: "", nation_id: "", year_id: "", status_id: "",
-  release_date: "", genre_ids: [] as number[],
+  release_date: "", description: "", genre_ids: [] as number[],
 };
 
 export default function AdminSeriesPage() {
@@ -143,6 +144,7 @@ export default function AdminSeriesPage() {
       year_id: item.year_id?.toString() || "",
       status_id: item.status_id?.toString() || "",
       release_date: item.release_date || "",
+      description: item.description || "",
       genre_ids: [],
     });
     setShowForm(true);
@@ -236,6 +238,15 @@ export default function AdminSeriesPage() {
                 <div className="md:col-span-2">
                   <label className="text-xs text-muted-foreground">Trailer Embed</label>
                   <Input value={form.trailer_embed_vid} onChange={e => set("trailer_embed_vid", e.target.value)} placeholder="<iframe ...>" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs text-muted-foreground">Description</label>
+                  <textarea
+                    className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring resize-y"
+                    value={form.description}
+                    onChange={e => set("description", e.target.value)}
+                    placeholder="Series description or synopsis..."
+                  />
                 </div>
               </div>
 

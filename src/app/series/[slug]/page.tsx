@@ -8,10 +8,20 @@ interface SeriesPageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
+function decodeSlug(segment: string): string {
+  try {
+    if (segment.includes("%")) return decodeURIComponent(segment);
+    return segment;
+  } catch {
+    return segment;
+  }
+}
+
 export async function generateMetadata(
   { params }: SeriesPageProps,
 ): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeSlug(rawSlug);
   const series = await getSeriesData(slug);
 
   if (!series) {
@@ -69,8 +79,9 @@ export async function generateMetadata(
 }
 
 export default async function SeriesPage({ params, searchParams }: SeriesPageProps) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
   const { page } = await searchParams;
+  const slug = decodeSlug(rawSlug);
   const currentPage = Number(page) || 1;
 
   const series = await getSeriesData(slug);

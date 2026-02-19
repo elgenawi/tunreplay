@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import type { MenuItem } from "@/lib/api";
+import type { NavMenuItem } from "@/lib/queries";
 import Logo from "./Logo";
 import DesktopMenu from "./DesktopMenu";
 import MobileMenu from "./MobileMenu";
@@ -9,7 +9,7 @@ import SearchModal from "./SearchModal";
 import NavControls from "./NavControls";
 
 interface NavbarProps {
-  menuItems: MenuItem[];
+  menuItems: NavMenuItem[];
 }
 
 interface AuthUser {

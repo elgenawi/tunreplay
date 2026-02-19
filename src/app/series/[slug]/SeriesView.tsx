@@ -61,89 +61,98 @@ export default function SeriesView({
           </div>
 
           {/* Info */}
-          <div className="md:col-span-2 space-y-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-white">{series.title}</h1>
+          <div className="md:col-span-2 flex flex-col gap-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight">
+              {series.title}
+            </h1>
 
-            <div className="flex flex-wrap gap-4 text-sm">
+            {/* Meta: Type, Year, Nation, Status */}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-white/60">
+              {series.type_name && (
+                <Link href={`/type/${series.type_slug}`} className="hover:text-primary transition">
+                  {series.type_name}
+                </Link>
+              )}
+              {series.year_name && (
+                <>
+                  <span className="text-white/40">•</span>
+                  <span>{series.year_name}</span>
+                </>
+              )}
+              {series.nation_name && (
+                <>
+                  <span className="text-white/40">•</span>
+                  <Link href={`/nation/${series.nation_slug}`} className="hover:text-primary transition">
+                    {series.nation_name}
+                  </Link>
+                </>
+              )}
+              {series.status_name && (
+                <>
+                  <span className="text-white/40">•</span>
+                  <span>{series.status_name}</span>
+                </>
+              )}
+            </div>
+
+            {/* Badges: Duration, Source, Episodes, Season */}
+            <div className="flex flex-wrap gap-2">
               {series.duration && (
-                <span className="bg-white/10 text-white/90 px-3 py-1 rounded-full">
+                <span className="bg-white/10 text-white/90 text-sm px-3 py-1.5 rounded-full">
                   {series.duration}
                 </span>
               )}
               {series.source && (
-                <span className="bg-primary/90 text-white px-3 py-1 rounded-full">
+                <span className="bg-primary/90 text-white text-sm px-3 py-1.5 rounded-full">
                   {series.source}
                 </span>
               )}
-              {series.episodes_number && (
-                <span className="bg-white/10 text-white/90 px-3 py-1 rounded-full">
+              {series.episodes_number != null && (
+                <span className="bg-white/10 text-white/90 text-sm px-3 py-1.5 rounded-full">
                   {series.episodes_number} حلقة
                 </span>
               )}
-              {series.season && (
-                <span className="bg-white/10 text-white/90 px-3 py-1 rounded-full">
+              {series.season != null && (
+                <span className="bg-white/10 text-white/90 text-sm px-3 py-1.5 rounded-full">
                   الموسم {series.season}
                 </span>
               )}
             </div>
 
-            <div className="space-y-4">
-              {/* Type, Year, Nation */}
-              <div className="flex flex-wrap gap-2 text-sm">
-                {series.type_name && (
+            {/* Genres */}
+            {series.genres.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {series.genres.map((genre) => (
                   <Link
-                    href={`/type/${series.type_slug}`}
-                    className="text-white/60 hover:text-primary transition"
+                    key={genre.slug}
+                    href={`/genre/${genre.slug}`}
+                    className="bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-sm px-3 py-1.5 rounded-full border border-white/10 transition"
                   >
-                    {series.type_name}
+                    {genre.name}
                   </Link>
-                )}
-                {series.year_name && (
-                  <>
-                    <span className="text-white/40">•</span>
-                    <span className="text-white/60">{series.year_name}</span>
-                  </>
-                )}
-                {series.nation_name && (
-                  <>
-                    <span className="text-white/40">•</span>
-                    <Link
-                      href={`/nation/${series.nation_slug}`}
-                      className="text-white/60 hover:text-primary transition"
-                    >
-                      {series.nation_name}
-                    </Link>
-                  </>
-                )}
-                {series.status_name && (
-                  <>
-                    <span className="text-white/40">•</span>
-                    <span className="text-white/60">{series.status_name}</span>
-                  </>
-                )}
+                ))}
               </div>
+            )}
 
-              {/* Genres */}
-              {series.genres.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {series.genres.map((genre) => (
-                    <Link
-                      key={genre.slug}
-                      href={`/genre/${genre.slug}`}
-                      className="bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-sm px-3 py-1 rounded-full transition"
-                    >
-                      {genre.name}
-                    </Link>
-                  ))}
+            {/* Description - clearly labeled section */}
+            {series.description && (
+              <section className="space-y-2">
+                <h2 className="text-sm font-semibold text-white/70 uppercase tracking-wide">
+                  القصة
+                </h2>
+                <div className="rounded-lg bg-white/5 border border-white/10 p-4">
+                  <p className="text-white/85 leading-relaxed whitespace-pre-line text-sm md:text-base">
+                    {series.description}
+                  </p>
                 </div>
-              )}
-            </div>
+              </section>
+            )}
 
             {/* Trailer Button */}
             {series.trailer_embed_vid && (
               <button
                 onClick={() => setIsTrailerOpen(true)}
-                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition"
+                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition w-fit"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />

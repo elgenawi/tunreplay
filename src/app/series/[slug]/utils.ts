@@ -26,6 +26,7 @@ export interface SeriesData {
   season: number | null;
   trailer_embed_vid: string | null;
   release_date: string | null;
+  description: string | null;
   type_name: string | null;
   type_slug: string | null;
   nation_name: string | null;
@@ -36,8 +37,62 @@ export interface SeriesData {
   genres: Genre[];
 }
 
+/** Normalize slug for comparison: trim, NFC, and collapse dash variants to hyphen-minus */
+function normalizeSlugForMatch(s: string): string {
+  const t = (s || "").trim().normalize("NFC");
+  return t.replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g, "-");
+}
+
+/** Latin suffix of slug (e.g. "serie-accident") for fallback match when Arabic encoding differs */
+function getLatinSuffix(s: string): string {
+  const match = (s || "").trim().match(/-[a-z0-9-]+$/i);
+  return match ? match[0].replace(/^-/, "") : "";
+}
+
 export async function getSeriesData(slug: string): Promise<SeriesData | null> {
   try {
+    const rawSlug = (slug || "").trim();
+    const normalizedInput = normalizeSlugForMatch(rawSlug);
+    const latinSuffix = getLatinSuffix(normalizedInput);
+
+    const allSlugs = await query<{ id: number; slug: string }[]>(
+      "SELECT id, slug FROM series"
+    );
+    const list = Array.isArray(allSlugs) ? allSlugs : [];
+    if (list.length === 0) return null;
+
+    let match: { id: number; slug: string } | null = list.find((row) => {
+      const rowSlug = String(row.slug ?? "").trim();
+      const dbSlug = normalizeSlugForMatch(rowSlug);
+      const inputNfd = normalizedInput.normalize("NFD");
+      const rowNfd = dbSlug.normalize("NFD");
+      return (
+        dbSlug === normalizedInput ||
+        rowNfd === inputNfd ||
+        rowSlug === rawSlug ||
+        rowSlug === slug
+      );
+    }) ?? null;
+
+    if (!match && latinSuffix) {
+      const bySuffix = list.filter((row) => {
+        const rowSlug = String(row.slug ?? "").trim();
+        return getLatinSuffix(normalizeSlugForMatch(rowSlug)) === latinSuffix;
+      });
+      if (bySuffix.length === 1) match = bySuffix[0];
+    }
+
+    if (!match && latinSuffix) {
+      const byLike = await query<{ id: number }[]>(
+        "SELECT id FROM series WHERE slug LIKE ? LIMIT 2",
+        ["%" + latinSuffix]
+      );
+      const likeList = Array.isArray(byLike) ? byLike : [];
+      if (likeList.length === 1) match = { id: likeList[0].id, slug: "" };
+    }
+
+    if (!match) return null;
+
     const rows = await query<Record<string, unknown>[]>(
       `SELECT s.*, t.name as type_name, t.slug as type_slug,
               n.name as nation_name, n.slug as nation_slug,
@@ -48,9 +103,9 @@ export async function getSeriesData(slug: string): Promise<SeriesData | null> {
        LEFT JOIN nations n ON s.nation_id = n.id
        LEFT JOIN years y ON s.year_id = y.id
        LEFT JOIN statuses st ON s.status_id = st.id
-       WHERE s.slug = ?
+       WHERE s.id = ?
        LIMIT 1`,
-      [slug]
+      [match.id]
     );
 
     if (!Array.isArray(rows) || rows.length === 0) return null;

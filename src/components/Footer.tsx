@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import type { SocialMedia } from '@/lib/api';
+import type { SocialMediaItem } from '@/lib/queries';
 
 const socialIcons = {
   Telegram: (
@@ -31,7 +31,7 @@ function formatSocialLink(link: string): string {
 }
 
 interface FooterProps {
-  socialMedia: SocialMedia[];
+  socialMedia: SocialMediaItem[];
 }
 
 export default function Footer({ socialMedia }: FooterProps) {

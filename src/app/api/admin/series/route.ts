@@ -28,16 +28,16 @@ export async function POST(req: NextRequest) {
   if (denied) return denied;
 
   const body = await req.json();
-  const { title, slug, image, duration, source, episodes_number, season, trailer_embed_vid, type_id, nation_id, year_id, status_id, release_date, genre_ids } = body;
+  const { title, slug, image, duration, source, episodes_number, season, trailer_embed_vid, type_id, nation_id, year_id, status_id, release_date, description, genre_ids } = body;
 
   if (!title || !slug) {
     return NextResponse.json({ error: "Title and slug are required" }, { status: 400 });
   }
 
   const result = await query<{ insertId: number }>(
-    `INSERT INTO series (title, slug, image, duration, source, episodes_number, season, trailer_embed_vid, type_id, nation_id, year_id, status_id, release_date)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [title, slug, image || null, duration || null, source || null, episodes_number || null, season || null, trailer_embed_vid || null, type_id || null, nation_id || null, year_id || null, status_id || null, release_date || null]
+    `INSERT INTO series (title, slug, image, duration, source, episodes_number, season, trailer_embed_vid, type_id, nation_id, year_id, status_id, release_date, description)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [title, slug, image || null, duration || null, source || null, episodes_number || null, season || null, trailer_embed_vid || null, type_id || null, nation_id || null, year_id || null, status_id || null, release_date || null, description || null]
   );
 
   const seriesId = (result as unknown as { insertId: number }).insertId;
@@ -56,15 +56,15 @@ export async function PUT(req: NextRequest) {
   if (denied) return denied;
 
   const body = await req.json();
-  const { id, title, slug, image, duration, source, episodes_number, season, trailer_embed_vid, type_id, nation_id, year_id, status_id, release_date, genre_ids } = body;
+  const { id, title, slug, image, duration, source, episodes_number, season, trailer_embed_vid, type_id, nation_id, year_id, status_id, release_date, description, genre_ids } = body;
 
   if (!id || !title || !slug) {
     return NextResponse.json({ error: "id, title and slug are required" }, { status: 400 });
   }
 
   await query(
-    `UPDATE series SET title=?, slug=?, image=?, duration=?, source=?, episodes_number=?, season=?, trailer_embed_vid=?, type_id=?, nation_id=?, year_id=?, status_id=?, release_date=? WHERE id=?`,
-    [title, slug, image || null, duration || null, source || null, episodes_number || null, season || null, trailer_embed_vid || null, type_id || null, nation_id || null, year_id || null, status_id || null, release_date || null, id]
+    `UPDATE series SET title=?, slug=?, image=?, duration=?, source=?, episodes_number=?, season=?, trailer_embed_vid=?, type_id=?, nation_id=?, year_id=?, status_id=?, release_date=?, description=? WHERE id=?`,
+    [title, slug, image || null, duration || null, source || null, episodes_number || null, season || null, trailer_embed_vid || null, type_id || null, nation_id || null, year_id || null, status_id || null, release_date || null, description || null, id]
   );
 
   await query("DELETE FROM series_genres WHERE series_id = ?", [id]);

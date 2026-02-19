@@ -3,11 +3,11 @@
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/navbar/index";
 import Footer from "@/components/Footer";
-import type { MenuItem, SocialMedia } from "@/lib/api";
+import type { NavMenuItem, SocialMediaItem } from "@/lib/queries";
 
 interface ConditionalLayoutProps {
-  menuItems: MenuItem[];
-  socialMedia: SocialMedia[];
+  menuItems: NavMenuItem[];
+  socialMedia: SocialMediaItem[];
   children: React.ReactNode;
 }
 

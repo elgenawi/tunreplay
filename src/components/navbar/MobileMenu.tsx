@@ -1,8 +1,8 @@
-import type { MenuItem } from "@/lib/api";
+import type { NavMenuItem } from "@/lib/queries";
 
 interface MobileMenuProps {
   isOpen: boolean;
-  menuItems: MenuItem[];
+  menuItems: NavMenuItem[];
   user: {
     id: number;
     email: string;

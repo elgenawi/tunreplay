@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { MenuItem } from "@/lib/api";
+import type { NavMenuItem } from "@/lib/queries";
 
 interface DesktopMenuProps {
-  menuItems: MenuItem[];
+  menuItems: NavMenuItem[];
 }
 
 export default function DesktopMenu({ menuItems }: DesktopMenuProps) {

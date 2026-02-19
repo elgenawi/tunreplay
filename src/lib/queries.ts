@@ -1,5 +1,40 @@
 import { query } from "@/lib/db";
 
+export interface NavMenuItem {
+  id: number;
+  menu_name: string;
+  slug: string;
+  category: { id: string; name: string; slug: string }[];
+}
+
+export interface SocialMediaItem {
+  id: number;
+  name: string;
+  link: string;
+}
+
+export async function getNavMenuItems(): Promise<NavMenuItem[]> {
+  try {
+    const rows = await query<{ id: number; name: string; slug: string }[]>(
+      "SELECT id, name, slug FROM types ORDER BY id"
+    );
+    if (!Array.isArray(rows)) return [];
+    return rows.map((t) => ({
+      id: t.id,
+      menu_name: t.name,
+      slug: t.slug,
+      category: [],
+    }));
+  } catch (error) {
+    console.error("Error fetching nav menu items:", error);
+    return [];
+  }
+}
+
+export async function getSocialMediaItems(): Promise<SocialMediaItem[]> {
+  return [];
+}
+
 export interface SeriesListItem {
   id: number;
   title: string;
