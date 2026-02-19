@@ -2,6 +2,8 @@ import { getScheduleByDay } from "@/lib/queries";
 import { Metadata } from "next";
 import ClientSchedule from "@/components/ClientSchedule";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: 'مواعيد الحلقات - TUNREPLAY',
   description: 'مواعيد عرض الحلقات الجديدة من المسلسلات والانمي على موقع TUNREPLAY',

@@ -50,9 +50,11 @@ interface SeriesEpisode {
 interface EpisodeViewProps {
   episode: Episode;
   allEpisodes: SeriesEpisode[];
+  /** When set, episode navigation uses this path (e.g. /series/foo/episodes) instead of /episodes */
+  episodesBasePath?: string;
 }
 
-export default function EpisodeView({ episode, allEpisodes }: EpisodeViewProps) {
+export default function EpisodeView({ episode, allEpisodes, episodesBasePath }: EpisodeViewProps) {
   const router = useRouter();
   const videoPlayerRef = useRef<HTMLDivElement>(null);
   const [listHeight, setListHeight] = useState('auto');
@@ -98,7 +100,11 @@ export default function EpisodeView({ episode, allEpisodes }: EpisodeViewProps) 
   }, []);
 
   const handleEpisodeSelect = (slug: string) => {
-    router.push(`/episodes/${slug}`);
+    if (episodesBasePath) {
+      router.push(`${episodesBasePath}/${encodeURIComponent(slug)}`);
+    } else {
+      router.push(`/episodes/${slug}`);
+    }
   };
 
   const handleSourceChange = (source: Source) => {
@@ -154,7 +160,7 @@ export default function EpisodeView({ episode, allEpisodes }: EpisodeViewProps) 
               <DisqusComments
                 identifier={episode.id}
                 title={`${episode.series.title} - ${episode.title}`}
-                url={`${process.env.NEXT_PUBLIC_SITE_URL}/episodes/${episode.slug}`}
+                url={episodesBasePath ? `${process.env.NEXT_PUBLIC_SITE_URL}${episodesBasePath}/${encodeURIComponent(episode.slug)}` : `${process.env.NEXT_PUBLIC_SITE_URL}/episodes/${episode.slug}`}
               />
             </div>
           </div>

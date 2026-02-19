@@ -15,6 +15,8 @@ import {
   getLatestAnime,
 } from '@/lib/queries';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'TUNREPLAY - مشاهدة افلام ومسلسلات اون لاين',
   description: 'موقع TUNREPLAY لمشاهدة الافلام والمسلسلات الاجنبي والاسيوي والانمي , مشاهدة احدث الافلام الاجنبي , افلام اون لاين , مسلسلات اونلاين , تحميل مسلسلات وافلام',

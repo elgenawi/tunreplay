@@ -3,9 +3,11 @@ import { notFound } from 'next/navigation';
 import { getSeriesData, getSeriesEpisodes, getAllEpisodes } from './utils';
 import SeriesView from './SeriesView';
 
+export const dynamic = 'force-dynamic';
+
 interface SeriesPageProps {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
+  params: Promise<{ slug: string }> | { slug: string };
+  searchParams: Promise<{ page?: string }> | { page?: string };
 }
 
 function decodeSlug(segment: string): string {
@@ -20,7 +22,7 @@ function decodeSlug(segment: string): string {
 export async function generateMetadata(
   { params }: SeriesPageProps,
 ): Promise<Metadata> {
-  const { slug: rawSlug } = await params;
+  const { slug: rawSlug } = await Promise.resolve(params);
   const slug = decodeSlug(rawSlug);
   const series = await getSeriesData(slug);
 
@@ -79,8 +81,8 @@ export async function generateMetadata(
 }
 
 export default async function SeriesPage({ params, searchParams }: SeriesPageProps) {
-  const { slug: rawSlug } = await params;
-  const { page } = await searchParams;
+  const { slug: rawSlug } = await Promise.resolve(params);
+  const { page } = await Promise.resolve(searchParams);
   const slug = decodeSlug(rawSlug);
   const currentPage = Number(page) || 1;
 

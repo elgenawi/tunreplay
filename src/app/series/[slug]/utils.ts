@@ -175,3 +175,41 @@ export async function getAllEpisodes(seriesId: number) {
     return [];
   }
 }
+
+export interface EpisodeWithEmbed extends Episode {
+  embed_url: string | null;
+}
+
+/** Get a single episode by series id and episode slug (decodes and normalizes slug). */
+export async function getEpisodeBySlugAndSeriesId(
+  seriesId: number,
+  episodeSlug: string
+): Promise<EpisodeWithEmbed | null> {
+  try {
+    const raw = (episodeSlug || "").trim();
+    const decoded = raw.includes("%") ? decodeURIComponent(raw) : raw;
+    const normalized = normalizeSlugForMatch(decoded);
+
+    const rows = await query<(Episode & { embed_url: string | null })[]>(
+      `SELECT id, title, slug, episode_number, image, season, created_at, embed_url
+       FROM episodes WHERE series_id = ?`,
+      [seriesId]
+    );
+    const list = Array.isArray(rows) ? rows : [];
+    if (list.length === 0) return null;
+
+    const match = list.find((row) => {
+      const s = String(row.slug ?? "").trim();
+      return (
+        s === raw ||
+        s === decoded ||
+        normalizeSlugForMatch(s) === normalized ||
+        s === episodeSlug
+      );
+    });
+    return match ?? null;
+  } catch (error) {
+    console.error("Error fetching episode by slug:", error);
+    return null;
+  }
+}
