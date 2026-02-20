@@ -1,10 +1,12 @@
 import { MetadataRoute } from "next";
+import { unstable_noStore } from "next/cache";
 import { getSitemapSlugs } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  unstable_noStore();
   const slugs = await getSitemapSlugs();
 
   const routes = [
@@ -69,6 +71,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const episodeRoutes = slugs.episodes.map(
+    (e: { seriesSlug: string; episodeSlug: string }) => ({
+      url: `https://tunreplay.com/series/${encodeURIComponent(e.seriesSlug)}/episodes/${encodeURIComponent(e.episodeSlug)}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    })
+  );
+
   return [
     ...routes,
     ...seriesRoutes,
@@ -76,5 +87,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...nationRoutes,
     ...yearRoutes,
     ...typeRoutes,
+    ...episodeRoutes,
   ];
 }

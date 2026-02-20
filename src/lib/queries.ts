@@ -464,24 +464,42 @@ export async function getSitemapSlugs(): Promise<{
   nations: string[];
   years: string[];
   types: string[];
+  episodes: { seriesSlug: string; episodeSlug: string }[];
 }> {
   try {
-    const [seriesRows, genreRows, nationRows, yearRows, typeRows] = await Promise.all([
-      query<{ slug: string }[]>("SELECT slug FROM series"),
-      query<{ slug: string }[]>("SELECT slug FROM genres"),
-      query<{ slug: string }[]>("SELECT slug FROM nations"),
-      query<{ name: string }[]>("SELECT name FROM years"),
-      query<{ slug: string }[]>("SELECT slug FROM types"),
-    ]);
+    const [seriesRows, genreRows, nationRows, yearRows, typeRows, episodeRows] =
+      await Promise.all([
+        query<{ slug: string }[]>("SELECT slug FROM series"),
+        query<{ slug: string }[]>("SELECT slug FROM genres"),
+        query<{ slug: string }[]>("SELECT slug FROM nations"),
+        query<{ name: string }[]>("SELECT name FROM years"),
+        query<{ slug: string }[]>("SELECT slug FROM types"),
+        query<{ series_slug: string; episode_slug: string }[]>(
+          "SELECT s.slug AS series_slug, e.slug AS episode_slug FROM episodes e JOIN series s ON e.series_id = s.id"
+        ),
+      ]);
     return {
       series: Array.isArray(seriesRows) ? seriesRows.map((r) => r.slug) : [],
       genres: Array.isArray(genreRows) ? genreRows.map((r) => r.slug) : [],
       nations: Array.isArray(nationRows) ? nationRows.map((r) => r.slug) : [],
       years: Array.isArray(yearRows) ? yearRows.map((r) => r.name) : [],
       types: Array.isArray(typeRows) ? typeRows.map((r) => r.slug) : [],
+      episodes: Array.isArray(episodeRows)
+        ? episodeRows.map((r) => ({
+            seriesSlug: r.series_slug,
+            episodeSlug: r.episode_slug,
+          }))
+        : [],
     };
   } catch (error) {
     console.error("Error fetching sitemap slugs:", error);
-    return { series: [], genres: [], nations: [], years: [], types: [] };
+    return {
+      series: [],
+      genres: [],
+      nations: [],
+      years: [],
+      types: [],
+      episodes: [],
+    };
   }
 }
