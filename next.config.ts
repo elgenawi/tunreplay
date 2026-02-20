@@ -32,25 +32,8 @@ const nextConfig = {
     ],
   },
 
-  // Add build error ignoring
   typescript: {
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  experimental: {
-    missingSuspenseWithCSRBailout: false
-  },
-
-  // Add sitemap configuration
-  async rewrites() {
-    return [
-      {
-        source: '/sitemap.xml',
-        destination: '/api/sitemap',
-      },
-    ];
   },
 };
 
