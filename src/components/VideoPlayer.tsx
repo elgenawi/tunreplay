@@ -43,6 +43,9 @@ export default function VideoPlayer({ currentSource, sources, onSourceChange }: 
             src={currentSource.source}
             className="absolute inset-0 w-full h-full"
             allowFullScreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            title="Video player"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-white/60">

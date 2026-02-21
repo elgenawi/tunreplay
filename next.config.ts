@@ -35,6 +35,28 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:",
+              "frame-src * data: blob:",
+              "script-src * 'unsafe-inline' 'unsafe-eval'",
+              "connect-src *",
+              "img-src * data: blob:",
+              "style-src * 'unsafe-inline'",
+              "media-src * blob:",
+            ].join("; "),
+          },
+        ],
+      },
+    ];
+  },
 };
 
 // Debug log

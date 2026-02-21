@@ -22,9 +22,15 @@ export default function List({
   const currentEpisodeRef = useRef<HTMLButtonElement>(null);
   const episodesListRef = useRef<HTMLDivElement>(null);
 
-  const filteredEpisodes = episodes.filter(ep => 
-    ep.number.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredEpisodes = episodes
+    .filter(ep => 
+      ep.number.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const numA = Number(a.number) || 0;
+      const numB = Number(b.number) || 0;
+      return numA - numB;
+    });
 
   // Scroll to current episode when component mounts or episode changes
   useEffect(() => {

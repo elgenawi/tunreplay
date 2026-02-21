@@ -88,7 +88,16 @@ export default async function SeriesEpisodePage({ params }: PageProps) {
     downlaod: [] as { id: number; name: string; link: string; date_created: string; date_updated: string; episode: string }[],
   };
 
-  const allEpisodesForView = allEpisodesList.map((ep) => ({
+  const sortedEpisodes = [...allEpisodesList].sort((a, b) => {
+    const seasonA = Number(a.season) ?? 0;
+    const seasonB = Number(b.season) ?? 0;
+    if (seasonA !== seasonB) return seasonA - seasonB;
+    const numA = Number(a.episode_number) ?? 0;
+    const numB = Number(b.episode_number) ?? 0;
+    return numA - numB;
+  });
+
+  const allEpisodesForView = sortedEpisodes.map((ep) => ({
     title: ep.title,
     slug: ep.slug,
     number: String(ep.episode_number),
