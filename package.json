@@ -43,7 +43,7 @@
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",
-    "undici": "^6.21.2",
+    "undici": "^6.24.1",
     "video.js": "^8.22.0"
   },
   "devDependencies": {
